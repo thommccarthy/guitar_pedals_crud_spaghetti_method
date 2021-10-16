@@ -4,8 +4,20 @@
 $pdo = new PDO('mysql:host=localhost;port=3306;dbname=products_crud', 'root', '');
 //PDO error handling - !!read docs
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-//Select all from 'products' table and order by date
-$statement = $pdo->prepare('SELECT * FROM products ORDER BY create_date DESC');
+
+$search = $_GET['search'] ?? '';
+if ($search) {
+  //Select all from 'products' table and order by date
+  $statement = $pdo->prepare('SELECT * FROM products WHERE title LIKE :title ORDER BY create_date DESC');
+  $statement->bindValue(':title', "%$search%");
+} else {
+
+  //Select all from 'products' table and order by date
+  $statement = $pdo->prepare('SELECT * FROM products ORDER BY create_date DESC');
+}
+
+
+
 //send the request
 $statement->execute();
 // fetch data as associative array
@@ -30,10 +42,21 @@ $products = $statement->fetchAll(PDO::FETCH_ASSOC);
 <body>
   <h1>Guitar Pedals CRUD</h1>
 
-  <!-- table -->
+
   <p>
     <a href="create.php" class="btn btn-success">Create Product</a>
   </p>
+
+  <form>
+    <div class="input-group mb-3">
+      <input type="text" class="form-control" placeholder="Search for products" name="search" value="<?php echo $search ?>">
+      <div class="input-group-append">
+        <button class="btn btn-outline-secondary" type="submit">Search</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- table -->
   <table class="table">
     <thead>
       <tr>
